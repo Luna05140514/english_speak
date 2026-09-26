@@ -1,5 +1,5 @@
 <!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style></head><body>
-<title>小鸚鵡跟讀</title>
+<title>英文跟讀小幫手</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&family=Noto+Sans+TC:wght@500;700&display=swap">
@@ -51,15 +51,15 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 /* ---------- top bar ---------- */
 .topbar{display:flex;align-items:center;gap:12px}
 .brand{display:flex;align-items:center;gap:10px}
-.brand .parrot{width:48px;flex:none}
+.logo{width:48px;height:48px;border-radius:14px;background:var(--leaf);color:var(--leaf-ink);display:grid;place-items:center;flex:none}
+.logo svg{width:28px;height:28px}
 .brand h1{font-size:26px}
 .brand small{display:block;font-family:var(--f-body);font-size:13px;color:var(--muted);font-weight:700;letter-spacing:.04em}
 
 /* ---------- home ---------- */
-.hero{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;background:var(--surface);border:2px solid var(--line);border-radius:28px;padding:24px;box-shadow:var(--shadow)}
+.hero{display:grid;grid-template-columns:1fr;gap:16px;background:var(--surface);border:2px solid var(--line);border-radius:28px;padding:24px;box-shadow:var(--shadow)}
 .hero h2{font-size:clamp(24px,4vw,34px)}
 .hero p{margin:6px 0 16px;color:var(--muted);max-width:46ch}
-.hero .parrot{width:130px;align-self:start}
 .entry{display:flex;flex-direction:column;min-width:0}
 .entry-form{display:flex;flex-direction:column;gap:8px}
 .entry-form textarea{font-size:17px;line-height:1.55;min-height:170px}
@@ -67,7 +67,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em;background:var(--surface2);padding:1px 6px;border-radius:6px;color:var(--ink)}
 .err{margin:0;color:var(--coral);font-weight:700}
 .confirm{font-size:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--coral-soft);border-radius:12px;padding:8px 10px}
-@media (max-width:560px){.hero{grid-template-columns:1fr}.hero .parrot{width:96px;order:-1}}
+
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .step{background:var(--surface2);border-radius:18px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
 .step b{font-family:var(--f-disp);font-size:22px;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--sun);color:#1B2A4A}
@@ -94,7 +94,13 @@ textarea{resize:vertical}
 /* ---------- busy ---------- */
 .busy{position:fixed;inset:0;background:color-mix(in srgb,var(--bg) 88%,transparent);display:grid;place-items:center;z-index:50;padding:16px}
 .busy .card{background:var(--surface);border:2px solid var(--line);border-radius:28px;padding:28px;max-width:420px;width:100%;text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center;box-shadow:var(--shadow)}
-.busy .parrot{width:110px}
+.spin{width:56px;height:56px;border-radius:50%;border:6px solid var(--line);border-top-color:var(--leaf);animation:rot .9s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.toggle{display:flex;gap:12px;align-items:flex-start;background:var(--leaf-soft);border-radius:14px;padding:10px 12px;cursor:pointer}
+.toggle input{width:22px;height:22px;accent-color:var(--leaf);margin:2px 0 0;flex:none}
+.toggle b{display:block}
+.toggle span{font-size:14px;color:var(--muted)}
+.toggle.off{background:var(--surface2);cursor:not-allowed;opacity:.75}
 
 /* ---------- edit ---------- */
 .sent-list{display:flex;flex-direction:column;gap:12px}
@@ -125,9 +131,21 @@ textarea{resize:vertical}
 .en-big.speaking-all .w{background:color-mix(in srgb,var(--hl) 45%,transparent)}
 .en-big.dim{opacity:.35}
 .zh-big{font-family:var(--f-zh);font-size:clamp(20px,2.8vw,28px);color:var(--muted);font-weight:500;min-height:1.4em}
-.zh-big.hidden-zh{filter:blur(8px);cursor:pointer;user-select:none}
+.zh-big{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 14px;margin-inline:-14px;border-radius:18px;transition:background .2s,color .2s}
+.zh-big .lbl{font-family:var(--f-body);font-size:13px;font-weight:800;letter-spacing:.05em;padding:2px 10px;border-radius:99px;background:var(--surface2);color:var(--muted);flex:none}
+.zh-big.turn{background:var(--sun-soft);color:var(--ink)}
+.zh-big.turn .lbl{background:var(--sun);color:#1B2A4A}
+.zh-big.hidden-zh .txt{filter:blur(9px);user-select:none}
+.zh-big.hidden-zh{cursor:pointer}
+.zh-big .none{font-size:16px;color:var(--muted)}
+.sent textarea.zh.need{border-color:var(--coral);background:var(--coral-soft)}
 .buddy{display:flex;align-items:center;gap:16px;background:var(--surface2);border-radius:24px;padding:12px 16px}
-.buddy .parrot{width:84px;flex:none}
+.cue{width:72px;height:72px;border-radius:22px;display:grid;place-items:center;flex:none;background:var(--surface);color:var(--muted)}
+.cue svg{width:38px;height:38px}
+.buddy.listen .cue{background:var(--leaf);color:var(--leaf-ink);animation:pulse 1s ease-in-out infinite}
+.buddy.turn .cue{background:var(--coral);color:#fff}
+.buddy.ready .cue{background:var(--sun);color:#1B2A4A}
+@keyframes pulse{50%{transform:scale(1.07)}}
 .buddy .say{font-family:var(--f-disp);font-weight:600;font-size:clamp(20px,2.6vw,26px)}
 .buddy .say small{display:block;font-family:var(--f-body);font-size:14px;color:var(--muted);font-weight:700}
 .ring{width:64px;height:64px;flex:none;margin-left:auto;position:relative}
@@ -162,20 +180,6 @@ textarea{resize:vertical}
 .dot.done{background:var(--leaf-soft);color:var(--leaf);border-color:transparent}
 .dot.cur{background:var(--sun);color:#1B2A4A;border-color:transparent}
 
-/* ---------- parrot ---------- */
-.parrot svg{width:100%;height:auto;display:block;overflow:visible}
-.parrot .beak-low{transform-origin:70px 50px;transition:transform .12s}
-.parrot.talk .beak-low{animation:chat .28s ease-in-out infinite}
-@keyframes chat{50%{transform:rotate(16deg)}}
-.parrot.talk .body{animation:bob .56s ease-in-out infinite}
-@keyframes bob{50%{transform:translateY(-2px)}}
-.parrot.listen .whole{transform:rotate(-8deg);transform-origin:50% 80%;transition:transform .3s}
-.parrot .whole{transition:transform .3s}
-.parrot.think .whole{animation:tilt 1.6s ease-in-out infinite;transform-origin:50% 80%}
-@keyframes tilt{25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}
-.parrot.happy .whole{animation:hop .5s ease-in-out 3}
-@keyframes hop{50%{transform:translateY(-10px)}}
-
 /* ---------- celebrate ---------- */
 .celebrate{position:absolute;inset:0;background:color-mix(in srgb,var(--surface) 94%,transparent);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;z-index:5}
 .celebrate h2{font-size:clamp(28px,4vw,42px)}
@@ -201,6 +205,9 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 };
 const ICON = {
+  mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  bubble: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M4 5h16v11H10l-4 3.5V16H4z"/><path d="M8 10.5h8" stroke-linecap="round"/></svg>',
   play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>',
   pause: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="5.5" y="4" width="4.5" height="16" rx="1.5"/><rect x="14" y="4" width="4.5" height="16" rx="1.5"/></svg>',
   prev: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="5" width="3" height="14" rx="1.2"/><path d="M20 5.8v12.4a1 1 0 0 1-1.55.83L9.6 13.2a1.4 1.4 0 0 1 0-2.4l8.85-5.83A1 1 0 0 1 20 5.8z"/></svg>',
@@ -214,20 +221,6 @@ const ICON = {
   speaker: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
   star: '<svg viewBox="0 0 24 24"><path fill="#FFC23A" stroke="#E0A000" stroke-width="1.2" d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z"/></svg>'
 };
-const PARROT = `<svg viewBox="0 0 100 110" aria-hidden="true"><g class="whole"><g class="body">
-  <path d="M40 104c-6-10-2-18 4-22" stroke="#1E8F57" stroke-width="7" fill="none" stroke-linecap="round"/>
-  <path d="M52 106c-2-10 2-16 8-20" stroke="#2F86D8" stroke-width="7" fill="none" stroke-linecap="round"/>
-  <ellipse cx="50" cy="66" rx="27" ry="30" fill="#23A866"/>
-  <ellipse cx="54" cy="74" rx="15" ry="18" fill="#FFD66B"/>
-  <path d="M27 62c-4 14 2 26 12 30 -2-10 0-22 6-30z" fill="#1E8F57"/>
-  <circle cx="52" cy="36" r="24" fill="#2BBF73"/>
-  <path d="M38 16c2-8 10-12 16-10-4 3-5 6-4 9z" fill="#FF6A55"/>
-  <circle cx="44" cy="33" r="9" fill="#fff"/><circle cx="46" cy="33" r="4.6" fill="#1B2A4A"/><circle cx="47.6" cy="31.4" r="1.6" fill="#fff"/>
-  <circle cx="36" cy="44" r="4.5" fill="#FF8C7A" opacity=".6"/>
-  <path d="M62 30c12 0 16 8 13 16-3-3-8-4-13-4z" fill="#FF9F1C"/>
-  <path class="beak-low" d="M63 44c5 0 9 1 11 4-3 4-8 5-12 3z" fill="#E57F00"/>
-</g></g></svg>`;
-const parrot = (cls = "") => `<div class="parrot ${cls}">${PARROT}</div>`;
 
 /* ============ data ============ */
 const SAMPLE = {
@@ -250,7 +243,8 @@ const saveLessons = () => store.set("parrot-lessons-v1", lessons.filter(l => !l.
 const allLessons = () => [...lessons.filter(l => !l.sample).sort((a, b) => b.created - a.created), SAMPLE];
 const findLesson = id => id === "sample" ? SAMPLE : lessons.find(l => l.id === id);
 
-const settings = Object.assign({ rate: 1, repeat: 1, mode: "auto", wait: "auto", showZh: true, voice: "" }, store.get("parrot-settings-v1", {}));
+const settings = Object.assign({ rate: 1, repeat: 1, mode: "auto", wait: "auto", showZh: true, voice: "", autoZh: true }, store.get("parrot-settings-v1", {}));
+if (settings.showZh === false) settings.showZh = "turn";
 const saveSettings = () => store.set("parrot-settings-v1", settings);
 
 /* ============ Claude (OCR + translate) ============ */
@@ -258,8 +252,8 @@ let sampleFn = null, sampleReady = false;
 if (window.claude?.use) {
   window.claude.use("sample").then(async s => {
     sampleFn = s;
-    sampleReady = true; if (view.name === "edit") render();
-  }).catch(() => { sampleReady = true; });
+    sampleReady = true; if (view.name === "edit") render(); else updateAutoZhUI();
+  }).catch(() => { sampleReady = true; updateAutoZhUI(); });
 } else sampleReady = true;
 
 const errCopy = code => ({
@@ -267,18 +261,61 @@ const errCopy = code => ({
   sampling_disabled: "這個帳號目前無法自動翻譯，請直接輸入中文翻譯。",
   rate_limited: "使用太頻繁了，請稍等一下再試。",
   invalid_json: "翻譯結果格式怪怪的，請再試一次。",
-  session_expired: "登入已過期，請重新登入後再試。"
+  session_expired: "登入已過期，請重新登入後再試。",
+  network: "自動翻譯失敗：請確認 iPad 有連上網路再試一次，或直接輸入中文。",
+  partial: "有幾句沒有翻譯成功（紅框），可以再按一次「自動翻譯」或直接輸入中文。"
 }[code] || "自動翻譯時發生問題，請再試一次，或直接輸入中文。");
 
+/* Free web translation (works when opened directly in Safari / Chrome) */
+async function googleTranslate(text) {
+  const url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-TW&dt=t&q=" + encodeURIComponent(text);
+  const r = await fetch(url); if (!r.ok) throw new Error("google " + r.status);
+  const j = await r.json();
+  const out = (j?.[0] || []).map(seg => seg?.[0] || "").join("").trim();
+  if (!out) throw new Error("google empty"); return out;
+}
+async function myMemoryTranslate(text) {
+  const r = await fetch("https://api.mymemory.translated.net/get?langpair=en|zh-TW&q=" + encodeURIComponent(text));
+  if (!r.ok) throw new Error("mymemory " + r.status);
+  const j = await r.json(); const out = String(j?.responseData?.translatedText || "").trim();
+  if (!out || j?.responseStatus >= 400 || /MYMEMORY WARNING/i.test(out)) throw new Error("mymemory quota"); return out;
+}
+async function webTranslateAll(list, onProgress) {
+  const out = new Array(list.length); let next = 0, done = 0, failed = 0;
+  async function worker() {
+    while (next < list.length) {
+      const k = next++;
+      try { out[k] = await googleTranslate(list[k]); }
+      catch { try { out[k] = await myMemoryTranslate(list[k]); } catch { failed++; } }
+      onProgress?.(++done, list.length);
+    }
+  }
+  await Promise.all([worker(), worker(), worker()]);
+  if (failed === list.length) throw { code: "network" };
+  return out;
+}
+async function claudeTranslateAll(list) {
+  const prompt = `把下面的英文句子翻成自然、小學生看得懂的繁體中文（台灣用語）。只回傳 JSON 字串陣列，長度 ${list.length}，順序相同。
+
+${JSON.stringify(list)}`;
+  const out = await sampleFn.json(prompt, { modelTier: "quick" });
+  if (!Array.isArray(out)) throw { code: "invalid_json" };
+  return out;
+}
 async function translateMissing(sentences) {
   const idx = sentences.map((s, i) => (!s.zh && s.en ? i : -1)).filter(i => i >= 0);
   if (!idx.length) return 0;
   const list = idx.map(i => sentences[i].en);
-  const prompt = `把下面的英文句子翻成自然、小學生看得懂的繁體中文（台灣用語）。只回傳 JSON 字串陣列，長度 ${list.length}，順序相同。\n\n${JSON.stringify(list)}`;
-  const out = await sampleFn.json(prompt, { modelTier: "quick" });
-  if (!Array.isArray(out)) throw { code: "invalid_json" };
-  idx.forEach((i, k) => { if (out[k]) sentences[i].zh = String(out[k]).trim(); });
-  return idx.length;
+  const progress = (d, n) => { const el = $("#busySub"); if (el) el.textContent = `已翻好 ${d} / ${n} 句`; };
+  let out;
+  if (sampleFn) {
+    try { out = await claudeTranslateAll(list); }
+    catch (e) { try { out = await webTranslateAll(list, progress); } catch { throw e; } }
+  } else out = await webTranslateAll(list, progress);
+  let filled = 0;
+  idx.forEach((i, k) => { if (out[k]) { sentences[i].zh = String(out[k]).trim(); filled++; } });
+  if (filled < idx.length) throw { code: "partial", n: idx.length - filled };
+  return filled;
 }
 
 function splitText(text) {
@@ -351,20 +388,24 @@ function showBusy(title, sub) {
   hideBusy();
   busyEl = document.createElement("div");
   busyEl.className = "busy";
-  busyEl.innerHTML = `<div class="card">${parrot("think")}<h3>${esc(title)}</h3><p class="muted" id="busySub">${esc(sub)}</p></div>`;
+  busyEl.innerHTML = `<div class="card"><div class="spin" aria-hidden="true"></div><h3>${esc(title)}</h3><p class="muted" id="busySub">${esc(sub)}</p></div>`;
   document.body.append(busyEl);
 }
 function hideBusy() { busyEl?.remove(); busyEl = null; }
 
 /* ---------- HOME ---------- */
+function updateAutoZhUI() {
+  const note = $("#autoZhNote"); if (!note) return;
+  note.textContent = "沒有寫中文的句子，會自動幫您翻好（需要連上網路），之後在下一頁還可以修改。";
+}
 function renderHome(msg) {
   const list = allLessons();
   const saved = store.get("parrot-input-draft-v1", { title: "", text: "" });
   app.innerHTML = `<div class="wrap">
-    <div class="topbar"><div class="brand">${parrot()}<div><h1>小鸚鵡跟讀</h1><small>ENGLISH SHADOWING BUDDY</small></div></div></div>
+    <div class="topbar"><div class="brand"><div class="logo" aria-hidden="true">${ICON.speaker}</div><div><h1>英文跟讀小幫手</h1><small>ENGLISH SHADOWING BUDDY</small></div></div></div>
     <section class="hero">
       <div class="entry">
-        <h2>輸入課文，小鸚鵡唸一句，孩子跟一句！</h2>
+        <h2>輸入課文，聽一句、跟一句！</h2>
         <p>家長把課本上的英文課文打進來，系統會自動切成一句一句，接著就能用可調速度、可重複的跟讀遊戲練習。</p>
         <form class="entry-form" id="entryForm" novalidate>
           <label for="pasteTitle"><b>課名</b></label>
@@ -376,11 +417,14 @@ function renderHome(msg) {
             <li>對話寫成 <code>Tom: Hello!</code>，說話者名字不會被唸出來。</li>
             <li>想順便輸入中文，用直線隔開：<code>I like apples. | 我喜歡蘋果。</code></li>
           </ul>
+          <label class="toggle" id="autoZhBox" for="autoZh">
+            <input type="checkbox" id="autoZh" ${settings.autoZh ? "checked" : ""}>
+            <div><b>自動翻譯成中文</b><span id="autoZhNote">沒有寫中文的句子，會自動幫您翻好，之後在下一頁還可以修改。</span></div>
+          </label>
           <p class="err" id="entryErr" hidden>請先輸入至少一句英文。</p>
           <div class="row"><span class="spacer"></span><button type="submit" class="btn primary">下一步：檢查句子</button></div>
         </form>
       </div>
-      ${parrot()}
     </section>
     ${msg ? `<div class="notice">${esc(msg)}</div>` : ""}
     <div class="steps">
@@ -407,12 +451,20 @@ function renderHome(msg) {
   const keep = () => store.set("parrot-input-draft-v1", { title: $("#pasteTitle").value, text: $("#pasteText").value });
   $("#pasteTitle").oninput = keep;
   $("#pasteText").oninput = () => { keep(); $("#entryErr").hidden = true; };
-  $("#entryForm").onsubmit = e => {
+  $("#autoZh").onchange = e => { settings.autoZh = e.target.checked; saveSettings(); };
+  updateAutoZhUI();
+  $("#entryForm").onsubmit = async e => {
     e.preventDefault();
     const sents = splitText($("#pasteText").value);
     if (!sents.length) { $("#entryErr").hidden = false; $("#pasteText").focus(); return; }
     draft = { id: uid(), title: $("#pasteTitle").value.trim() || "我的課文", sentences: sents, created: Date.now(), fresh: true };
-    go("edit");
+    let msg;
+    if (settings.autoZh && sents.some(x => !x.zh)) {
+      showBusy("翻譯中…", `正在把 ${sents.filter(x => !x.zh).length} 句英文翻成中文`);
+      try { await translateMissing(draft.sentences); } catch (err) { msg = errCopy(err?.code); }
+      hideBusy();
+    }
+    go("edit"); if (msg) renderEdit(msg);
   };
   app.querySelectorAll("[data-play]").forEach(b => b.onclick = () => go("play", { id: b.dataset.play }));
   app.querySelectorAll("[data-edit]").forEach(b => b.onclick = () => {
@@ -450,7 +502,7 @@ function renderEdit(msg) {
         <div class="fields">
           <input type="text" class="spk" id="spk-${i}" placeholder="說話者（可空白）" value="${esc(s.speaker)}" aria-label="第 ${i + 1} 句說話者">
           <textarea class="en" id="en-${i}" rows="1" aria-label="第 ${i + 1} 句英文">${esc(s.en)}</textarea>
-          <textarea class="zh" id="zh-${i}" rows="1" placeholder="中文翻譯" aria-label="第 ${i + 1} 句中文">${esc(s.zh)}</textarea>
+          <textarea class="zh${s.en && !s.zh ? " need" : ""}" id="zh-${i}" rows="1" placeholder="還沒有中文翻譯，請輸入" aria-label="第 ${i + 1} 句中文">${esc(s.zh)}</textarea>
         </div>
         <div class="tools">
           <button class="icon-btn" data-say="${i}" title="唸這句" aria-label="唸第 ${i + 1} 句">${ICON.speaker}</button>
@@ -461,7 +513,7 @@ function renderEdit(msg) {
     </div>
     <div class="row">
       <button class="btn" id="add">${ICON.plus}新增一句</button>
-      ${sampleFn && missing ? `<button class="btn sun" id="trans">自動翻譯 ${missing} 句中文</button>` : ""}
+      ${missing ? `<button class="btn sun" id="trans">自動翻譯 ${missing} 句中文</button>` : ""}
     </div>
     <div class="sticky-foot">
       <button class="btn" id="save">儲存</button>
@@ -475,27 +527,41 @@ function renderEdit(msg) {
     const i = +row.dataset.i;
     $(".spk", row).oninput = e => d.sentences[i].speaker = e.target.value;
     $(".en", row).oninput = e => { d.sentences[i].en = e.target.value; autoGrow(e.target); };
-    $(".zh", row).oninput = e => { d.sentences[i].zh = e.target.value; autoGrow(e.target); };
+    $(".zh", row).oninput = e => { d.sentences[i].zh = e.target.value; e.target.classList.toggle("need", !e.target.value.trim()); autoGrow(e.target); };
   });
   app.querySelectorAll("[data-say]").forEach(b => b.onclick = () => { synth?.cancel(); speak(d.sentences[+b.dataset.say].en); });
   app.querySelectorAll("[data-del]").forEach(b => b.onclick = () => { d.sentences.splice(+b.dataset.del, 1); renderEdit(); });
   app.querySelectorAll("[data-up]").forEach(b => b.onclick = () => { const i = +b.dataset.up; [d.sentences[i - 1], d.sentences[i]] = [d.sentences[i], d.sentences[i - 1]]; renderEdit(); });
   $("#add").onclick = () => { d.sentences.push({ speaker: "", en: "", zh: "" }); renderEdit(); $(`#en-${d.sentences.length - 1}`)?.focus(); };
   $("#trans")?.addEventListener("click", async () => {
-    showBusy("翻譯中…", "小鸚鵡正在把英文翻成中文");
+    showBusy("翻譯中…", "正在把英文翻成中文");
     try { await translateMissing(d.sentences); hideBusy(); renderEdit(); }
     catch (e) { hideBusy(); renderEdit(errCopy(e?.code)); }
   });
   $("#back").onclick = () => go("home");
   $("#save").onclick = () => { if (commitDraft()) go("home"); };
-  $("#start").onclick = () => { const id = commitDraft(); if (id) go("play", { id }); };
+  $("#start").onclick = async () => {
+    const miss = d.sentences.filter(s => s.en.trim() && !s.zh.trim()).length;
+    if (miss && settings.autoZh && !d.autoTried) {
+      d.autoTried = true;
+      showBusy("先幫每句加上中文…", `還有 ${miss} 句沒有中文，正在自動翻譯`);
+      try { await translateMissing(d.sentences); hideBusy(); }
+      catch (e) { hideBusy(); d.okMissing = true; renderEdit(errCopy(e?.code) + "也可以再按一次「開始跟讀遊戲」直接開始。"); focusMissing(); return; }
+    } else if (miss && !d.okMissing) {
+      d.okMissing = true;
+      renderEdit(`還有 ${miss} 句沒有中文翻譯（紅框）。請先補上，孩子跟讀時才看得到中文；或再按一次「開始跟讀遊戲」直接開始。`);
+      focusMissing(); return;
+    }
+    const id = commitDraft(); if (id) go("play", { id });
+  };
+  function focusMissing() { const t = app.querySelector("textarea.zh.need"); if (t) { t.scrollIntoView({ block: "center" }); t.focus(); } }
 }
 function autoGrow(t) { t.style.height = "auto"; t.style.height = t.scrollHeight + 4 + "px"; }
 function commitDraft() {
   const d = draft;
   d.sentences = d.sentences.map(s => ({ speaker: s.speaker.trim(), en: s.en.trim(), zh: s.zh.trim() })).filter(s => s.en);
   if (!d.sentences.length) { renderEdit("至少需要一句英文喔！"); return null; }
-  const { fresh, ...clean } = d;
+  const { fresh, okMissing, autoTried, ...clean } = d;
   clean.title = clean.title.trim() || "我的課文";
   const i = lessons.findIndex(l => l.id === d.id);
   if (i >= 0) lessons[i] = clean; else lessons.push(clean);
@@ -523,7 +589,7 @@ function renderPlay() {
       <div class="en-big" id="en" title="點一下再聽一次；點單字聽單字"></div>
       <div class="zh-big" id="zh"></div>
       <div class="buddy" id="buddy">
-        ${parrot()}
+        <div class="cue" id="cue" aria-hidden="true"></div>
         <div class="say" id="say"></div>
         <div class="ring" id="ring" hidden><svg viewBox="0 0 64 64"><circle class="track" cx="32" cy="32" r="28"/><circle class="fill" id="ringFill" cx="32" cy="32" r="28"/></svg><span id="ringNum"></span></div>
       </div>
@@ -540,7 +606,7 @@ function renderPlay() {
       ${segSet("每句唸幾次", "repeat", [[1, "1 次"], [2, "2 次"], [3, "3 次"]])}
       ${segSet("唸完換你", "wait", [["auto", "自動"], [3, "3 秒"], [5, "5 秒"], [8, "8 秒"]])}
       ${segSet("下一句", "mode", [["auto", "自動"], ["manual", "按了才換"]])}
-      ${segSet("中文翻譯", "showZh", [[true, "顯示"], [false, "藏起來"]])}
+      ${segSet("中文翻譯", "showZh", [[true, "一直顯示"], ["turn", "跟讀時出現"]])}
       <div class="set"><label class="t" for="voiceSel">聲音</label><select id="voiceSel"></select></div>
     </div>
     <div class="set"><span class="t" style="font-size:13px;font-weight:800;letter-spacing:.05em;color:var(--muted)">跳到第幾句</span><div class="dots" id="dots"></div></div>
@@ -558,7 +624,7 @@ function renderPlay() {
     if (w && P.phase !== "speaking") { stopPlayback(true); speak(w.dataset.word, { rate: Math.min(settings.rate, 0.9) }); return; }
     jump(P.idx);
   };
-  $("#zh").onclick = () => { if (!settings.showZh) $("#zh").classList.toggle("hidden-zh"); };
+  $("#zh").onclick = () => { const z = $("#zh"); if (z.classList.contains("hidden-zh")) z.classList.remove("hidden-zh"); };
   app.querySelectorAll(".seg").forEach(seg => seg.addEventListener("click", e => {
     const b = e.target.closest("button"); if (!b) return;
     const key = seg.dataset.key; let val = b.dataset.v;
@@ -596,10 +662,17 @@ function showSentence() {
     last = m.index + m[0].length;
   }
   $("#en").innerHTML = html;
-  const zh = $("#zh"); zh.textContent = s.zh || "";
-  zh.classList.toggle("hidden-zh", !settings.showZh && !!s.zh);
+  renderZh(false);
   $("#dots").innerHTML = P.lesson.sentences.map((_, i) => `<button class="dot ${i === P.idx ? "cur" : P.done.has(i) ? "done" : ""}" data-j="${i}" aria-label="第 ${i + 1} 句">${i + 1}</button>`).join("");
   $("#dots").onclick = e => { const b = e.target.closest("[data-j]"); if (b) jump(+b.dataset.j); };
+}
+function renderZh(turn) {
+  const s = P.lesson.sentences[P.idx], zh = $("#zh"); if (!zh) return;
+  zh.innerHTML = s.zh
+    ? `<span class="lbl">中文</span><span class="txt">${esc(s.zh)}</span>`
+    : `<span class="lbl">中文</span><span class="none">這句還沒有中文翻譯，可以到「編輯」補上</span>`;
+  zh.classList.toggle("turn", turn);
+  zh.classList.toggle("hidden-zh", !!s.zh && !turn && settings.showZh === "turn");
 }
 function highlightAt(ci) {
   const spans = app.querySelectorAll("#en .w");
@@ -610,27 +683,29 @@ function clearHighlight() { app.querySelectorAll("#en .w.on").forEach(x => x.cla
 
 function setPhase(ph, extra = {}) {
   P.phase = ph;
-  const say = $("#say"), buddy = $("#buddy"), par = $("#buddy .parrot"), pp = $("#pp"), nx = $("#next"), ring = $("#ring");
+  const say = $("#say"), buddy = $("#buddy"), cue = $("#cue"), pp = $("#pp"), nx = $("#next"), ring = $("#ring");
   if (!say) return;
-  buddy.className = "buddy"; par.className = "parrot"; ring.hidden = true; nx.classList.remove("next-ready");
+  buddy.className = "buddy"; ring.hidden = true; nx.classList.remove("next-ready");
+  renderZh(ph === "waiting" || ph === "ready" || ph === "done");
   const playing = ph === "speaking" || ph === "waiting";
   pp.innerHTML = playing ? `${ICON.pause}暫停` : `${ICON.play}${ph === "idle" && !P.started ? "開始" : "播放"}`;
   pp.setAttribute("aria-label", playing ? "暫停" : "播放");
   if (ph === "speaking") {
-    buddy.classList.add("listen"); par.classList.add("talk");
-    say.innerHTML = `仔細聽… <small>${extra.rep > 1 ? `第 ${extra.r} / ${extra.rep} 次` : "小鸚鵡先唸"}</small>`;
+    buddy.classList.add("listen"); cue.innerHTML = ICON.speaker;
+    say.innerHTML = `仔細聽… <small>${extra.rep > 1 ? `第 ${extra.r} / ${extra.rep} 次` : "先聽一次"}</small>`;
   } else if (ph === "waiting") {
-    buddy.classList.add("turn"); par.classList.add("listen");
-    say.innerHTML = `換你唸！ <small>大聲跟著說一次</small>`;
+    buddy.classList.add("turn"); cue.innerHTML = ICON.mic;
+    say.innerHTML = `換你唸！ <small>看著英文大聲說一次，想想中文的意思</small>`;
     ring.hidden = false;
   } else if (ph === "ready") {
-    buddy.classList.add("ready");
+    buddy.classList.add("ready"); cue.innerHTML = ICON.check;
     say.innerHTML = `唸得好！ <small>按「下一句」繼續，或點句子再聽一次</small>`;
     nx.classList.add("next-ready");
   } else if (ph === "paused") {
+    cue.innerHTML = ICON.pause;
     say.innerHTML = `暫停中 <small>按播放從這一句繼續</small>`;
   } else {
-    say.innerHTML = `準備好了嗎？ <small>按「開始」，小鸚鵡唸一句，你跟一句</small>`;
+    cue.innerHTML = ICON.bubble; say.innerHTML = `準備好了嗎？ <small>按「開始」，聽一句、跟一句</small>`;
   }
 }
 
@@ -708,7 +783,7 @@ function finish() {
   showSentence(); setPhase("idle"); P.phase = "done";
   $("#pp").innerHTML = `${ICON.restart}再玩一次`;
   $("#say").innerHTML = `全部唸完了！ <small>好厲害，再挑戰一次或換快一點的語速吧</small>`;
-  $("#buddy .parrot").classList.add("happy");
+  $("#cue").innerHTML = ICON.check; $("#buddy").classList.add("ready");
   const c = document.createElement("div");
   c.className = "celebrate";
   c.innerHTML = `<div class="stars">${ICON.star.repeat(3)}</div><h2>全部唸完了，好棒！</h2><p class="muted">這一課共 ${P.lesson.sentences.length} 句</p>

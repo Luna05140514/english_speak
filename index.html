@@ -51,6 +51,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 /* ---------- top bar ---------- */
 .topbar{display:flex;align-items:center;gap:12px}
 .brand{display:flex;align-items:center;gap:10px}
+.brand .parrot{width:48px;flex:none}
 .brand h1{font-size:26px}
 .brand small{display:block;font-family:var(--f-body);font-size:13px;color:var(--muted);font-weight:700;letter-spacing:.04em}
 
@@ -58,7 +59,14 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .hero{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;background:var(--surface);border:2px solid var(--line);border-radius:28px;padding:24px;box-shadow:var(--shadow)}
 .hero h2{font-size:clamp(24px,4vw,34px)}
 .hero p{margin:6px 0 16px;color:var(--muted);max-width:46ch}
-.hero .parrot{width:130px}
+.hero .parrot{width:130px;align-self:start}
+.entry{display:flex;flex-direction:column;min-width:0}
+.entry-form{display:flex;flex-direction:column;gap:8px}
+.entry-form textarea{font-size:17px;line-height:1.55;min-height:170px}
+.hints{margin:0;padding-left:20px;font-size:14px;color:var(--muted);display:flex;flex-direction:column;gap:2px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em;background:var(--surface2);padding:1px 6px;border-radius:6px;color:var(--ink)}
+.err{margin:0;color:var(--coral);font-weight:700}
+.confirm{font-size:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--coral-soft);border-radius:12px;padding:8px 10px}
 @media (max-width:560px){.hero{grid-template-columns:1fr}.hero .parrot{width:96px;order:-1}}
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .step{background:var(--surface2);border-radius:18px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
@@ -89,8 +97,6 @@ textarea{resize:vertical}
 .busy .parrot{width:110px}
 
 /* ---------- edit ---------- */
-.shots{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
-.shots img{height:120px;border-radius:12px;border:2px solid var(--line);flex:none}
 .sent-list{display:flex;flex-direction:column;gap:12px}
 .sent{background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:12px;display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:start}
 .sent .n{font-family:var(--f-disp);font-weight:700;font-size:18px;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:var(--leaf-soft);color:var(--leaf)}
@@ -201,7 +207,6 @@ const ICON = {
   next: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="17" y="5" width="3" height="14" rx="1.2"/><path d="M4 5.8v12.4a1 1 0 0 0 1.55.83l8.85-5.83a1.4 1.4 0 0 0 0-2.4L5.55 4.97A1 1 0 0 0 4 5.8z"/></svg>',
   again: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.5-5.8"/><path d="M4 4v5h5"/></svg>',
   restart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5v6h6"/><path d="M3.5 11A9 9 0 1 1 6 17.5"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>',
-  camera: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.6"/></svg>',
   back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
   trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
   up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 14l6-6 6 6"/></svg>',
@@ -249,46 +254,21 @@ const settings = Object.assign({ rate: 1, repeat: 1, mode: "auto", wait: "auto",
 const saveSettings = () => store.set("parrot-settings-v1", settings);
 
 /* ============ Claude (OCR + translate) ============ */
-let sampleFn = null, canImages = false, sampleReady = false;
+let sampleFn = null, sampleReady = false;
 if (window.claude?.use) {
   window.claude.use("sample").then(async s => {
     sampleFn = s;
-    if (s) { const lim = await s.limits().catch(() => null); canImages = !!lim?.images; }
-    sampleReady = true; if (view.name === "home") render();
+    sampleReady = true; if (view.name === "edit") render();
   }).catch(() => { sampleReady = true; });
 } else sampleReady = true;
 
 const errCopy = code => ({
-  not_granted: "沒有取得使用 Claude 的權限，可以改用下方「貼上課文文字」。",
-  sampling_disabled: "這個帳號目前無法使用 Claude 辨識，請改用貼上文字。",
-  images_unavailable: "這個環境不能傳送圖片，請改用貼上文字。",
-  image_rejected: "這張照片無法讀取，請換一張（JPG / PNG，清楚一點）。",
+  not_granted: "沒有取得使用 Claude 的權限，請直接輸入中文翻譯。",
+  sampling_disabled: "這個帳號目前無法自動翻譯，請直接輸入中文翻譯。",
   rate_limited: "使用太頻繁了，請稍等一下再試。",
-  invalid_json: "辨識結果格式怪怪的，請再試一次。",
-  refused: "無法處理這張圖片，請換一張課本照片。",
+  invalid_json: "翻譯結果格式怪怪的，請再試一次。",
   session_expired: "登入已過期，請重新登入後再試。"
-}[code] || "辨識時發生問題，請再試一次。");
-
-function validSentences(arr) {
-  return (Array.isArray(arr) ? arr : []).map(s => ({
-    speaker: String(s?.speaker ?? "").trim(), en: String(s?.en ?? "").trim(), zh: String(s?.zh ?? "").trim()
-  })).filter(s => s.en);
-}
-
-async function ocrImages(files) {
-  const n = files.length;
-  const prompt = `你是兒童英文課本的文字整理助手。附上的 ${n} 張圖片是英文課本頁面的照片（依頁序）。
-請：
-1. 讀出頁面上的英文課文內容（對話、短文、句型、例句）。忽略頁碼、頁首頁尾、出版社資訊、中文說明與練習題作答指示。
-2. 修正拍照造成的斷行與錯字，把內容切成適合小朋友跟讀的一句一句（一個項目一句；很長的句子可在自然停頓處拆開）。
-3. 如果是對話，把說話者名字放在 speaker 欄位，en 欄位不要包含名字與冒號。
-4. 每句提供自然、小學生看得懂的繁體中文（台灣用語）翻譯。
-5. 給這一課一個簡短標題（優先用課本上的英文標題）。
-只回傳 JSON：{"title": string, "sentences": [{"speaker": string, "en": string, "zh": string}]}
-找不到英文課文時回傳 {"title": "", "sentences": []}。`;
-  const out = await sampleFn.json(prompt, { images: files, modelTier: "default", cache: false });
-  return { title: String(out?.title || "").trim(), sentences: validSentences(out?.sentences) };
-}
+}[code] || "自動翻譯時發生問題，請再試一次，或直接輸入中文。");
 
 async function translateMissing(sentences) {
   const idx = sentences.map((s, i) => (!s.zh && s.en ? i : -1)).filter(i => i >= 0);
@@ -306,9 +286,12 @@ function splitText(text) {
   const res = [];
   for (let line of text.split(/\n+/)) {
     line = line.trim(); if (!line) continue;
-    let speaker = "";
+    let speaker = "", zh = "";
+    const bar = line.split(/\s*[|｜]\s*/);
+    if (bar.length > 1) { line = bar[0]; zh = bar.slice(1).join(" ").trim(); }
     const m = line.match(/^([A-Z][A-Za-z .'-]{0,20}):\s*(.+)$/);
     if (m) { speaker = m[1].trim(); line = m[2]; }
+    if (zh) { if (line.trim()) res.push({ speaker, en: line.trim(), zh }); continue; }
     protect(line).replace(/([.!?]+["”’']?)\s+/g, "$1\n").split("\n").forEach(p => {
       p = p.replace(/\u0001/g, ".").trim();
       if (p) res.push({ speaker, en: p, zh: "" });
@@ -376,86 +359,73 @@ function hideBusy() { busyEl?.remove(); busyEl = null; }
 /* ---------- HOME ---------- */
 function renderHome(msg) {
   const list = allLessons();
-  const photoOK = !!sampleFn && canImages;
+  const saved = store.get("parrot-input-draft-v1", { title: "", text: "" });
   app.innerHTML = `<div class="wrap">
     <div class="topbar"><div class="brand">${parrot()}<div><h1>小鸚鵡跟讀</h1><small>ENGLISH SHADOWING BUDDY</small></div></div></div>
     <section class="hero">
-      <div>
-        <h2>拍下課本，小鸚鵡唸一句，你跟一句！</h2>
-        <p>拍一張英文課本頁面，自動辨識課文、切成句子、加上中文翻譯，再用可以調速度、可以重複的跟讀遊戲來練習。</p>
-        <div class="row">
-          <label class="btn primary" id="photoBtn" ${photoOK ? "" : 'aria-disabled="true" style="opacity:.55"'}>${ICON.camera}拍照上傳新課本
-            <input id="photoIn" type="file" accept="image/*" capture="environment" multiple hidden ${photoOK ? "" : "disabled"}>
-          </label>
-          <button class="btn" id="pasteToggle">貼上課文文字</button>
-        </div>
+      <div class="entry">
+        <h2>輸入課文，小鸚鵡唸一句，孩子跟一句！</h2>
+        <p>家長把課本上的英文課文打進來，系統會自動切成一句一句，接著就能用可調速度、可重複的跟讀遊戲練習。</p>
+        <form class="entry-form" id="entryForm" novalidate>
+          <label for="pasteTitle"><b>課名</b></label>
+          <input type="text" id="pasteTitle" placeholder="例如：Unit 3 My Family" value="${esc(saved.title)}">
+          <label for="pasteText"><b>英文課文</b></label>
+          <textarea id="pasteText" rows="7" placeholder="Tom: Hello, I'm Tom.&#10;Amy: Hi, Tom. Nice to meet you.&#10;This is my dog. | 這是我的狗。">${esc(saved.text)}</textarea>
+          <ul class="hints">
+            <li>可以整段貼上，會在句號、問號、驚嘆號自動斷句。</li>
+            <li>對話寫成 <code>Tom: Hello!</code>，說話者名字不會被唸出來。</li>
+            <li>想順便輸入中文，用直線隔開：<code>I like apples. | 我喜歡蘋果。</code></li>
+          </ul>
+          <p class="err" id="entryErr" hidden>請先輸入至少一句英文。</p>
+          <div class="row"><span class="spacer"></span><button type="submit" class="btn primary">下一步：檢查句子</button></div>
+        </form>
       </div>
       ${parrot()}
     </section>
     ${msg ? `<div class="notice">${esc(msg)}</div>` : ""}
-    ${!sampleReady ? `<div class="notice info">正在準備拍照辨識功能…</div>` :
-      !photoOK ? `<div class="notice info">這個畫面目前無法用 Claude 辨識照片（需要在 Claude 裡開啟並允許使用）。仍然可以用「貼上課文文字」建立課本，並用範例課程練習。</div>` : ""}
-    <section class="paste" id="pasteBox" hidden>
-      <label for="pasteTitle"><b>課名</b></label>
-      <input type="text" id="pasteTitle" placeholder="例如：Unit 3 My Family">
-      <label for="pasteText"><b>英文課文</b> <span class="muted">（一行一句也可以；對話可寫成「Tom: Hello!」）</span></label>
-      <textarea id="pasteText" rows="6" placeholder="Tom: Hello, I'm Tom.&#10;Amy: Hi, Tom. Nice to meet you."></textarea>
-      <div class="row"><span class="spacer"></span><button class="btn primary" id="pasteGo">下一步：檢查句子</button></div>
-    </section>
     <div class="steps">
-      <div class="step"><b>1</b><div><strong>拍照</strong><span>用 iPad 或手機拍課本，一次可選多頁</span></div></div>
-      <div class="step"><b>2</b><div><strong>檢查</strong><span>看看英文和中文對不對，可以直接修改</span></div></div>
+      <div class="step"><b>1</b><div><strong>輸入</strong><span>家長輸入或貼上課本上的英文課文</span></div></div>
+      <div class="step"><b>2</b><div><strong>檢查</strong><span>確認句子切得對、補上中文翻譯</span></div></div>
       <div class="step"><b>3</b><div><strong>跟讀</strong><span>聽一句、唸一句，唸完自動換下一句</span></div></div>
     </div>
     <div class="section-h"><h3>我的課本</h3><span class="muted">${list.length} 課</span></div>
     <div class="lessons">
       ${list.map(l => `<article class="lesson">
-        <div class="row" style="gap:8px">${l.sample ? '<span class="tag sample">範例</span>' : `<span class="tag">${l.sentences.length} 句</span>`}${l.sample ? `<span class="tag">${l.sentences.length} 句</span>` : ""}</div>
+        <div class="row" style="gap:8px">${l.sample ? '<span class="tag sample">範例</span>' : ""}<span class="tag">${l.sentences.length} 句</span></div>
         <h4>${esc(l.title || "未命名課文")}</h4>
         <div class="first">${esc(l.sentences.slice(0, 2).map(s => s.en).join(" "))}</div>
         <div class="row">
           <button class="btn primary small" data-play="${l.id}">${ICON.play}開始跟讀</button>
           <button class="btn small" data-edit="${l.id}">編輯</button>
+          ${l.sample ? "" : `<button class="icon-btn danger" data-rm="${l.id}" aria-label="刪除這一課" title="刪除這一課">${ICON.trash}</button>`}
         </div>
+        ${l.sample ? "" : `<div class="confirm" id="rm-${l.id}" hidden>確定刪除這一課？ <button class="btn small" data-rmyes="${l.id}">刪除</button> <button class="btn small ghost" data-rmno="${l.id}">取消</button></div>`}
       </article>`).join("")}
     </div>
   </div>`;
 
-  const inp = $("#photoIn");
-  inp?.addEventListener("change", async () => {
-    const files = [...inp.files]; inp.value = "";
-    if (files.length) handlePhotos(files);
-  });
-  $("#photoBtn").addEventListener("click", e => { if (!photoOK) { e.preventDefault(); $("#pasteBox").hidden = false; $("#pasteText").focus(); } });
-  $("#pasteToggle").onclick = () => { const b = $("#pasteBox"); b.hidden = !b.hidden; if (!b.hidden) $("#pasteText").focus(); };
-  $("#pasteGo").onclick = () => {
+  const keep = () => store.set("parrot-input-draft-v1", { title: $("#pasteTitle").value, text: $("#pasteText").value });
+  $("#pasteTitle").oninput = keep;
+  $("#pasteText").oninput = () => { keep(); $("#entryErr").hidden = true; };
+  $("#entryForm").onsubmit = e => {
+    e.preventDefault();
     const sents = splitText($("#pasteText").value);
-    if (!sents.length) { $("#pasteText").focus(); return; }
-    draft = { id: uid(), title: $("#pasteTitle").value.trim() || "我的課文", sentences: sents, created: Date.now(), images: [] };
+    if (!sents.length) { $("#entryErr").hidden = false; $("#pasteText").focus(); return; }
+    draft = { id: uid(), title: $("#pasteTitle").value.trim() || "我的課文", sentences: sents, created: Date.now(), fresh: true };
     go("edit");
   };
   app.querySelectorAll("[data-play]").forEach(b => b.onclick = () => go("play", { id: b.dataset.play }));
   app.querySelectorAll("[data-edit]").forEach(b => b.onclick = () => {
     const l = findLesson(b.dataset.edit);
-    draft = JSON.parse(JSON.stringify(l)); draft.images = [];
+    draft = JSON.parse(JSON.stringify(l));
     if (l.sample) { draft.id = uid(); draft.sample = false; draft.created = Date.now(); draft.title += "（我的版本）"; }
     go("edit");
   });
-}
-
-async function handlePhotos(files) {
-  const urls = files.map(f => URL.createObjectURL(f));
-  showBusy("小鸚鵡正在看課本…", "辨識英文、切句子、翻成中文，大約需要 20–60 秒");
-  try {
-    const { title, sentences } = await ocrImages(files);
-    hideBusy();
-    if (!sentences.length) { renderHome("這張照片裡找不到英文課文，請拍清楚一點、讓課文佔滿畫面再試一次。"); return; }
-    draft = { id: uid(), title: title || "新課文", sentences, created: Date.now(), images: urls };
-    go("edit");
-  } catch (e) {
-    hideBusy();
-    renderHome(errCopy(e?.code));
-  }
+  app.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => { $("#rm-" + b.dataset.rm).hidden = false; });
+  app.querySelectorAll("[data-rmno]").forEach(b => b.onclick = () => { $("#rm-" + b.dataset.rmno).hidden = true; });
+  app.querySelectorAll("[data-rmyes]").forEach(b => b.onclick = () => {
+    lessons = lessons.filter(l => l.id !== b.dataset.rmyes); saveLessons(); renderHome();
+  });
 }
 
 /* ---------- EDIT ---------- */
@@ -472,8 +442,7 @@ function renderEdit(msg) {
       <label for="title" class="muted" style="font-weight:800;font-size:13px;letter-spacing:.05em">課名</label>
       <input type="text" id="title" value="${esc(d.title)}" style="font-family:var(--f-disp);font-size:24px;font-weight:600">
     </div>
-    ${d.images?.length ? `<div class="shots">${d.images.map(u => `<img src="${u}" alt="課本照片">`).join("")}</div>` : ""}
-    <div class="notice info">檢查一下：英文拼對了嗎？中文翻譯通順嗎？點文字就能直接修改。</div>
+    <div class="notice info">檢查一下：句子切得對嗎？英文拼對了嗎？中文可以自己輸入，也可以按「自動翻譯」。點文字就能直接修改。</div>
     ${msg ? `<div class="notice">${esc(msg)}</div>` : ""}
     <div class="sent-list">
       ${d.sentences.map((s, i) => `<div class="sent" data-i="${i}">
@@ -526,11 +495,12 @@ function commitDraft() {
   const d = draft;
   d.sentences = d.sentences.map(s => ({ speaker: s.speaker.trim(), en: s.en.trim(), zh: s.zh.trim() })).filter(s => s.en);
   if (!d.sentences.length) { renderEdit("至少需要一句英文喔！"); return null; }
-  const { images, ...clean } = d;
+  const { fresh, ...clean } = d;
   clean.title = clean.title.trim() || "我的課文";
   const i = lessons.findIndex(l => l.id === d.id);
   if (i >= 0) lessons[i] = clean; else lessons.push(clean);
   saveLessons();
+  if (d.fresh) { store.set("parrot-input-draft-v1", { title: "", text: "" }); delete d.fresh; }
   return d.id;
 }
 

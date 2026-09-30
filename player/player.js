@@ -45,7 +45,15 @@ app.innerHTML=`
   <audio id="au" preload="auto"></audio>`;
 
 const $=id=>document.getElementById(id), au=$('au');
-au.src=LESSON.audio||'audio.mp3';
+// 把整個音檔先下載到記憶體再播放：有些網站主機不支援跳到音檔中間，直接播放會每次從頭開始
+const audioUrl=LESSON.audio||'audio.mp3';
+let audioReady=false,audioWait=null;
+const audioLoad=(async()=>{
+  try{const r=await fetch(audioUrl);if(!r.ok)throw 0;const b=await r.blob();au.src=URL.createObjectURL(b.type?b:new Blob([b],{type:'audio/mpeg'}))}
+  catch(e){au.src=audioUrl}
+  await new Promise(ok=>{if(au.readyState>=1)ok();else{au.addEventListener('loadedmetadata',ok,{once:true});au.addEventListener('error',ok,{once:true});au.load()}});
+  audioReady=true;
+})();
 $('ttl').textContent=LESSON.title;
 app.querySelector('.lessontag').textContent=(LESSON.label||'');
 
@@ -92,8 +100,16 @@ function render(){const l=L[S.i];$('en').textContent=l.en;$('zh').textContent=l.
 function clearT(){clearTimeout(timer);cancelAnimationFrame(raf);$('ring').hidden=true}
 function scrollCur(){if(window.scrollY>2)window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})}
 function go(i){clearT();au.pause();S.i=Math.max(0,Math.min(N-1,i));S.phase='idle';S.running=false;render();scrollCur()}
-function listen(){clearT();scrollCur();const[s,e]=bounds(S.i);S.phase='listen';S.running=true;render();
-  au.playbackRate=+S.rate;au.currentTime=s;const pr=au.play();if(pr)pr.catch(()=>{S.running=false;S.phase='idle';render()});
+function seekTo(t){return new Promise(ok=>{if(Math.abs(au.currentTime-t)<0.05){ok();return}
+  let done=false;const fin=()=>{if(!done){done=true;ok()}};au.addEventListener('seeked',fin,{once:true});setTimeout(fin,1500);au.currentTime=t})}
+async function listen(){clearT();scrollCur();const[s,e]=bounds(S.i);S.phase='listen';S.running=true;render();
+  const myI=S.i;
+  if(!audioReady){$('status').textContent='音檔載入中…';await audioLoad;if(!S.running||S.i!==myI||S.phase!=='listen')return;setStatus()}
+  au.pause();au.playbackRate=+S.rate;await seekTo(s);
+  if(!S.running||S.i!==myI||S.phase!=='listen')return;
+  const pr=au.play();if(pr)pr.catch(()=>{S.running=false;S.phase='idle';render()});
+  // 萬一瀏覽器沒有跳到正確位置，再跳一次
+  setTimeout(()=>{if(S.phase==='listen'&&S.i===myI&&Math.abs(au.currentTime-s)>1.5&&au.currentTime<s)au.currentTime=s},250);
   const tick=()=>{if(!S.running||S.phase!=='listen')return;if(au.currentTime>=e){au.pause();say()}else raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick)}
 function say(){S.phase='say';S.done.add(S.i);store.set(P+'done',[...S.done]);render();
   if(S.mode==='tap')return;

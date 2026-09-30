@@ -71,7 +71,7 @@ const S={i:0,phase:'idle',running:false,
   done:new Set(store.get(P+'done',[]))};
 let timer=null,raf=null;
 const PAD_S=.12,PAD_E=.2;
-function bounds(i){const a=adj[i]||{s:0,e:0};const l=L[i];let s=Math.max(0,l.s-PAD_S+a.s),e=l.e+PAD_E+a.e;if(i<N-1)e=Math.min(e,L[i+1].s+((adj[i+1]&&adj[i+1].s)||0)-.05);return[s,e]}
+function bounds(i){const a=adj[i]||{s:0,e:0};const l=L[i];let s=Math.max(0,l.s-PAD_S+a.s),e=l.e+PAD_E+a.e;if(i<N-1)e=Math.min(e,L[i+1].s+((adj[i+1]&&adj[i+1].s)||0)-.05);else if(!a.e&&isFinite(au.duration)&&au.duration>e)e=au.duration;return[s,e]}
 
 const scr=$('script');const lnEls=[];
 LESSON.sections.forEach(sec=>{const d=document.createElement('div');d.className='sec';d.innerHTML='<div class="time"></div><div class="lines"></div>';d.querySelector('.time').textContent=sec.t||'';const box=d.querySelector('.lines');
@@ -102,6 +102,7 @@ function scrollCur(){if(window.scrollY>2)window.scrollTo({top:0,behavior:matchMe
 function go(i){clearT();au.pause();S.i=Math.max(0,Math.min(N-1,i));S.phase='idle';S.running=false;render();scrollCur()}
 function seekTo(t){return new Promise(ok=>{if(Math.abs(au.currentTime-t)<0.05){ok();return}
   let done=false;const fin=()=>{if(!done){done=true;ok()}};au.addEventListener('seeked',fin,{once:true});setTimeout(fin,1500);au.currentTime=t})}
+au.addEventListener('ended',()=>{if(S.running&&S.phase==='listen'){cancelAnimationFrame(raf);say()}});
 async function listen(){clearT();scrollCur();const[s,e]=bounds(S.i);S.phase='listen';S.running=true;render();
   const myI=S.i;
   if(!audioReady){$('status').textContent='音檔載入中…';await audioLoad;if(!S.running||S.i!==myI||S.phase!=='listen')return;setStatus()}

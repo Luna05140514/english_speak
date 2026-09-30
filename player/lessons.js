@@ -10,7 +10,7 @@ const store={
 };
 function repoInfo(){
   const h=location.hostname, m=h.match(/^([^.]+)\.github\.io$/i);
-  if(!m)return null;
+       if(!m)return {owner:'Luna05140514',repo:'english_speak'};
   const seg=location.pathname.split('/').filter(Boolean);
   const first=seg[0]&&!/\.html?$/i.test(seg[0])?seg[0]:null;
   return {owner:m[1],repo:first||h};
